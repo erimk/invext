@@ -40,4 +40,11 @@ defmodule InvextWeb.TicketController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def take(conn, params) do
+    with {:ok, staff} <- HelpDesk.get_staff(params["staff_id"]),
+         {:ok, ticket} <- HelpDesk.get_queued_ticket(staff) do
+      render(conn, :show, ticket: ticket)
+    end
+  end
 end

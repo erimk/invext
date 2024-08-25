@@ -21,7 +21,8 @@ defmodule InvextWeb.TicketJSON do
       title: ticket.title,
       description: ticket.description,
       type: ticket.type,
-      status: ticket.status
+      status: ticket.status,
+      staff_id: ticket.staff_id
     }
   end
 end

@@ -4,6 +4,8 @@ defmodule Invext.HelpDesk do
   """
 
   import Ecto.Query, warn: false
+
+  alias Ecto.Multi
   alias Invext.Repo
 
   alias Invext.HelpDesk.Ticket
@@ -197,4 +199,41 @@ defmodule Invext.HelpDesk do
   def change_staff(%Staff{} = staff, attrs \\ %{}) do
     Staff.changeset(staff, attrs)
   end
+
+  def get_staff(id) do
+    Staff
+    |> Repo.get(id)
+    |> case do
+      %Staff{} = staff -> {:ok, staff}
+      _ -> {:error, :not_found}
+    end
+  end
+
+  def get_queued_ticket(staff) do
+    args = %{status: :solving}
+
+    Multi.new()
+    |> Multi.all(
+      :all,
+      Ticket
+      |> where([t], t.type == ^staff.team)
+      |> where([t], t.status == :queued)
+      |> where([t], is_nil(t.staff_id))
+      |> preload([:staff])
+      |> first
+    )
+    |> Multi.merge(fn result -> maybe_update_ticket(result, args, staff) end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{update: ticket}} -> {:ok, ticket}
+      {:error, _, changeset, _} -> {:error, changeset}
+      {:ok, %{all: []}} -> {:error, :not_found}
+    end
+  end
+
+  defp maybe_update_ticket(%{all: [ticket]}, args, staff) do
+    Multi.update(Multi.new(), :update, Ticket.update_changeset(ticket, args, staff))
+  end
+
+  defp maybe_update_ticket(%{all: []}, _args, _staff), do: Multi.new()
 end

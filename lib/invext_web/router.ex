@@ -25,6 +25,7 @@ defmodule InvextWeb.Router do
     pipe_through :api
 
     resources "/tickets", TicketController, except: [:new, :edit]
+    post "/tickets/take", TicketController, :take
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

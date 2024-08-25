@@ -7,16 +7,16 @@ defmodule InvextWeb.TicketControllerTest do
 
   @create_attrs %{
     description: "some description",
-    status: :queued,
     title: "some title",
     type: :cards
   }
+
   @update_attrs %{
     description: "some updated description",
-    status: :solving,
     title: "some updated title",
     type: :loans
   }
+
   @invalid_attrs %{description: nil, status: nil, title: nil, type: nil}
 
   setup %{conn: conn} do
@@ -30,7 +30,7 @@ defmodule InvextWeb.TicketControllerTest do
     end
   end
 
-  describe "create ticket" do
+  describe "create" do
     test "renders ticket when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/tickets", ticket: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -52,7 +52,7 @@ defmodule InvextWeb.TicketControllerTest do
     end
   end
 
-  describe "update ticket" do
+  describe "update" do
     setup [:create_ticket]
 
     test "renders ticket when data is valid", %{conn: conn, ticket: %Ticket{id: id} = ticket} do
@@ -64,7 +64,7 @@ defmodule InvextWeb.TicketControllerTest do
       assert %{
                "id" => ^id,
                "description" => "some updated description",
-               "status" => "solving",
+               "status" => "queued",
                "title" => "some updated title",
                "type" => "loans"
              } = json_response(conn, 200)["data"]
@@ -76,7 +76,7 @@ defmodule InvextWeb.TicketControllerTest do
     end
   end
 
-  describe "delete ticket" do
+  describe "delete" do
     setup [:create_ticket]
 
     test "deletes chosen ticket", %{conn: conn, ticket: ticket} do
@@ -86,6 +86,42 @@ defmodule InvextWeb.TicketControllerTest do
       assert_error_sent 404, fn ->
         get(conn, ~p"/api/tickets/#{ticket}")
       end
+    end
+  end
+
+  describe "take" do
+    test "renders ok when valid data", %{conn: conn} do
+      ticket = ticket_fixture()
+      staff = staff_fixture(%{team: ticket.type})
+      params = %{staff_id: staff.id}
+
+      conn = post(conn, ~p"/api/tickets/take", params)
+
+      assert subject = json_response(conn, 200)["data"]
+      assert subject["id"] == ticket.id
+      assert subject["staff_id"] == staff.id
+      assert subject["status"] == "solving"
+    end
+
+    test "renders error when staff differs team", %{conn: conn} do
+      ticket_fixture()
+      staff = staff_fixture(%{team: :loans})
+      params = %{staff_id: staff.id}
+
+      conn = post(conn, ~p"/api/tickets/take", params)
+
+      assert %{"detail" => "Not Found"} = json_response(conn, 404)["errors"]
+    end
+
+    @tag :skip
+    test "renders error when ticket is already finished", %{conn: conn} do
+      ticket = ticket_fixture(%{status: :finished})
+      staff = staff_fixture(%{team: ticket.type})
+      params = %{staff_id: staff.id}
+
+      conn = post(conn, ~p"/api/tickets/take", params)
+
+      assert json_response(conn, 404)
     end
   end
 

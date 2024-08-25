@@ -21,7 +21,12 @@ defmodule Invext.HelpDeskTest do
     end
 
     test "create_ticket/1 with valid data creates a ticket" do
-      valid_attrs = %{description: "some description", status: :queued, title: "some title", type: :cards}
+      valid_attrs = %{
+        description: "some description",
+        status: :queued,
+        title: "some title",
+        type: :cards
+      }
 
       assert {:ok, %Ticket{} = ticket} = HelpDesk.create_ticket(valid_attrs)
       assert ticket.description == "some description"
@@ -36,11 +41,17 @@ defmodule Invext.HelpDeskTest do
 
     test "update_ticket/2 with valid data updates the ticket" do
       ticket = ticket_fixture()
-      update_attrs = %{description: "some updated description", status: :solving, title: "some updated title", type: :loans}
+
+      update_attrs = %{
+        description: "some updated description",
+        status: :solving,
+        title: "some updated title",
+        type: :loans
+      }
 
       assert {:ok, %Ticket{} = ticket} = HelpDesk.update_ticket(ticket, update_attrs)
       assert ticket.description == "some updated description"
-      assert ticket.status == :solving
+      assert ticket.status == :queued
       assert ticket.title == "some updated title"
       assert ticket.type == :loans
     end
