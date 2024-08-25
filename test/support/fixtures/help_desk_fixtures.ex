@@ -20,4 +20,19 @@ defmodule Invext.HelpDeskFixtures do
 
     ticket
   end
+
+  @doc """
+  Generate a staff.
+  """
+  def staff_fixture(attrs \\ %{}) do
+    {:ok, staff} =
+      attrs
+      |> Enum.into(%{
+        name: "some name",
+        team: :cards
+      })
+      |> Invext.HelpDesk.create_staff()
+
+    staff
+  end
 end
