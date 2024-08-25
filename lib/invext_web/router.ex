@@ -21,9 +21,11 @@ defmodule InvextWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", InvextWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", InvextWeb do
+    pipe_through :api
+
+    resources "/tickets", TicketController, except: [:new, :edit]
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:invext, :dev_routes) do
