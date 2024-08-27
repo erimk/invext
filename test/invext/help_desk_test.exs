@@ -1,22 +1,22 @@
 defmodule Invext.HelpDeskTest do
   use Invext.DataCase
 
+  import Invext.Factory
+
   alias Invext.HelpDesk
 
   describe "tickets" do
     alias Invext.HelpDesk.Ticket
 
-    import Invext.HelpDeskFixtures
-
     @invalid_attrs %{description: nil, status: nil, title: nil, type: nil}
 
     test "list_tickets/0 returns all tickets" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
       assert HelpDesk.list_tickets() == [ticket]
     end
 
     test "get_ticket!/1 returns the ticket with given id" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
       assert HelpDesk.get_ticket!(ticket.id) == ticket
     end
 
@@ -40,7 +40,7 @@ defmodule Invext.HelpDeskTest do
     end
 
     test "update_ticket/2 with valid data updates the ticket" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
 
       update_attrs = %{
         description: "some updated description",
@@ -57,19 +57,19 @@ defmodule Invext.HelpDeskTest do
     end
 
     test "update_ticket/2 with invalid data returns error changeset" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
       assert {:error, %Ecto.Changeset{}} = HelpDesk.update_ticket(ticket, @invalid_attrs)
       assert ticket == HelpDesk.get_ticket!(ticket.id)
     end
 
     test "delete_ticket/1 deletes the ticket" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
       assert {:ok, %Ticket{}} = HelpDesk.delete_ticket(ticket)
       assert_raise Ecto.NoResultsError, fn -> HelpDesk.get_ticket!(ticket.id) end
     end
 
     test "change_ticket/1 returns a ticket changeset" do
-      ticket = ticket_fixture()
+      ticket = insert(:ticket)
       assert %Ecto.Changeset{} = HelpDesk.change_ticket(ticket)
     end
   end
@@ -77,17 +77,15 @@ defmodule Invext.HelpDeskTest do
   describe "staffs" do
     alias Invext.HelpDesk.Staff
 
-    import Invext.HelpDeskFixtures
-
     @invalid_attrs %{name: nil, team: nil}
 
     test "list_staffs/0 returns all staffs" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       assert HelpDesk.list_staffs() == [staff]
     end
 
     test "get_staff!/1 returns the staff with given id" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       assert HelpDesk.get_staff!(staff.id) == staff
     end
 
@@ -104,7 +102,7 @@ defmodule Invext.HelpDeskTest do
     end
 
     test "update_staff/2 with valid data updates the staff" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       update_attrs = %{name: "some updated name", team: :loans}
 
       assert {:ok, %Staff{} = staff} = HelpDesk.update_staff(staff, update_attrs)
@@ -113,19 +111,19 @@ defmodule Invext.HelpDeskTest do
     end
 
     test "update_staff/2 with invalid data returns error changeset" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       assert {:error, %Ecto.Changeset{}} = HelpDesk.update_staff(staff, @invalid_attrs)
       assert staff == HelpDesk.get_staff!(staff.id)
     end
 
     test "delete_staff/1 deletes the staff" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       assert {:ok, %Staff{}} = HelpDesk.delete_staff(staff)
       assert_raise Ecto.NoResultsError, fn -> HelpDesk.get_staff!(staff.id) end
     end
 
     test "change_staff/1 returns a staff changeset" do
-      staff = staff_fixture()
+      staff = insert(:staff)
       assert %Ecto.Changeset{} = HelpDesk.change_staff(staff)
     end
   end

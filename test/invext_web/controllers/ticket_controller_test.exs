@@ -1,7 +1,7 @@
 defmodule InvextWeb.TicketControllerTest do
   use InvextWeb.ConnCase
 
-  import Invext.HelpDeskFixtures
+  import Invext.Factory
 
   alias Invext.HelpDesk.Ticket
 
@@ -91,8 +91,8 @@ defmodule InvextWeb.TicketControllerTest do
 
   describe "take" do
     test "renders ok when valid data", %{conn: conn} do
-      ticket = ticket_fixture()
-      staff = staff_fixture(%{team: ticket.type})
+      ticket = insert(:ticket)
+      staff = insert(:staff, %{team: ticket.type})
       params = %{staff_id: staff.id}
 
       conn = post(conn, ~p"/api/tickets/take", params)
@@ -104,8 +104,8 @@ defmodule InvextWeb.TicketControllerTest do
     end
 
     test "renders error when staff differs team", %{conn: conn} do
-      ticket_fixture()
-      staff = staff_fixture(%{team: :loans})
+      insert(:ticket)
+      staff = insert(:staff, %{team: :loans})
       params = %{staff_id: staff.id}
 
       conn = post(conn, ~p"/api/tickets/take", params)
@@ -113,10 +113,9 @@ defmodule InvextWeb.TicketControllerTest do
       assert %{"detail" => "Not Found"} = json_response(conn, 404)["errors"]
     end
 
-    @tag :skip
     test "renders error when ticket is already finished", %{conn: conn} do
-      ticket = ticket_fixture(%{status: :finished})
-      staff = staff_fixture(%{team: ticket.type})
+      ticket = insert(:ticket, %{status: :finished})
+      staff = insert(:staff, %{team: ticket.type})
       params = %{staff_id: staff.id}
 
       conn = post(conn, ~p"/api/tickets/take", params)
@@ -126,7 +125,7 @@ defmodule InvextWeb.TicketControllerTest do
   end
 
   defp create_ticket(_) do
-    ticket = ticket_fixture()
+    ticket = insert(:ticket)
     %{ticket: ticket}
   end
 end
